@@ -1,0 +1,21 @@
+{
+  "name": "agora-interviewer",
+  "version": "1.0.0",
+  "description": "Prototype of live code interview based on agora's sdk.",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel src/*.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yanzhen@smartx.com",
+  "license": "MIT",
+  "dependencies": {
+    "agora-rtc-sdk": "^2.6.1"
+  },
+  "devDependencies": {
+    "parcel": "^1.12.3"
+  },
+  "browserslist": [
+    "last 2 Chrome versions"
+  ]
+}

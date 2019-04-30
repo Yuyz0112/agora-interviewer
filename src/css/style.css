@@ -1,0 +1,11 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+.video-wrapper {
+  width: 50%;
+  height: 50vh;
+  /* margin: 0 auto; */
+}
