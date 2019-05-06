@@ -19,3 +19,8 @@ export function playRemoteStream(stream) {
     );
   stream.play(domId);
 }
+
+const promot = "[interview-app]:";
+export function log(val) {
+  console.log(promot, val);
+}

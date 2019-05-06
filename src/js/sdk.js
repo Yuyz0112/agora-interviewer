@@ -1,4 +1,5 @@
 import AgoraRTC from "agora-rtc-sdk";
+import AgoraSig from "../../vendor/AgoraSig-1.4.0";
 
 const client = AgoraRTC.createClient({ mode: "live", codec: "h264" });
 
@@ -54,3 +55,33 @@ export const rtc = {
   publish,
   subscribe
 };
+
+export class Signal {
+  constructor(appId) {
+    this.signal = new AgoraSig(appId);
+  }
+
+  login(account, token = "_no_need_token") {
+    return new Promise((resolve, reject) => {
+      this.session = this.signal.login(account, token);
+      this.session.onLoginSuccess = resolve;
+      this.session.onLoginFailed = reject;
+    });
+  }
+
+  messageInstantSend(account, message) {
+    return new Promise(resolve => {
+      this.session.messageInstantSend(account, message, resolve);
+    });
+  }
+
+  on(event, cb) {
+    switch (event) {
+      case "messageInstantReceive":
+        this.session.onMessageInstantReceive = cb;
+        break;
+      default:
+        break;
+    }
+  }
+}
