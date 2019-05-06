@@ -2,12 +2,12 @@ import AgoraRTC from "agora-rtc-sdk";
 
 const client = AgoraRTC.createClient({ mode: "live", codec: "h264" });
 
-export const init = appId =>
+const init = appId =>
   new Promise((resolve, reject) => {
     client.init(appId, () => resolve(), err => reject(err));
   });
 
-export const join = (tokenOrKey, channel, uid) =>
+const join = (tokenOrKey, channel, uid) =>
   new Promise((resolve, reject) => {
     client.join(
       tokenOrKey,
@@ -18,20 +18,20 @@ export const join = (tokenOrKey, channel, uid) =>
     );
   });
 
-export const createStream = AgoraRTC.createStream;
+const createStream = AgoraRTC.createStream;
 
-export const initStream = stream =>
+const initStream = stream =>
   new Promise((resolve, reject) => {
     stream.init(() => resolve(), err => reject(err));
   });
 
-export const publish = stream =>
+const publish = stream =>
   new Promise((resolve, reject) => {
     client.publish(stream, err => reject(err));
     client.on("stream-published", evt => resolve(evt));
   });
 
-export const subscribe = () =>
+const subscribe = cb =>
   new Promise((resolve, reject) => {
     client.on("stream-added", evt => {
       const { stream } = evt;
@@ -39,5 +39,18 @@ export const subscribe = () =>
     });
     client.on("stream-subscribed", evt => {
       resolve(evt.stream);
+      if (cb) {
+        cb(evt.stream);
+      }
     });
   });
+
+export const rtc = {
+  client,
+  init,
+  join,
+  createStream,
+  initStream,
+  publish,
+  subscribe
+};

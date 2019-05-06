@@ -2,10 +2,25 @@ html,
 body {
   margin: 0;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.video-wrapper {
+.video {
   width: 50%;
-  height: 50vh;
-  /* margin: 0 auto; */
+  height: 100%;
+  position: relative;
+}
+
+.main-video-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.minor-video-wrapper {
+  width: 15vw;
+  height: 15vw;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
