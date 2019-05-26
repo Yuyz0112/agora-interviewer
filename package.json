@@ -4,15 +4,24 @@
   "description": "Prototype of live code interview based on agora's sdk.",
   "main": "index.js",
   "scripts": {
-    "start": "parcel src/*.html",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "http-server -c-1 ./dist -p 1234",
+    "build": "npm run build-index && npm run build-json && npm run build-css && npm run build-html && npm run build-ts && npm run build-worker",
+    "build-index": "parcel build src/*.html",
+    "build-json": "parcel build node_modules/monaco-editor/esm/vs/language/json/json.worker.js --no-source-maps",
+    "build-css": "parcel build node_modules/monaco-editor/esm/vs/language/css/css.worker.js --no-source-maps",
+    "build-html": "parcel build node_modules/monaco-editor/esm/vs/language/html/html.worker.js --no-source-maps",
+    "build-ts": "parcel build node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js --no-source-maps",
+    "build-worker": "parcel build node_modules/monaco-editor/esm/vs/editor/editor.worker.js --no-source-maps"
   },
   "author": "yanzhen@smartx.com",
   "license": "MIT",
   "dependencies": {
-    "agora-rtc-sdk": "^2.6.1"
+    "agora-rtc-sdk": "^2.6.1",
+    "monaco-editor": "^0.17.0",
+    "rrweb": "^0.7.14"
   },
   "devDependencies": {
+    "http-server": "^0.11.1",
     "parcel": "^1.12.3"
   },
   "browserslist": [

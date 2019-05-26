@@ -1,6 +1,8 @@
+import { Replayer } from "rrweb";
 import { rtc, Signal } from "./sdk";
-import { getRoomId, playRemoteStream, log } from "./utils";
-import { APP_ID, START } from "./constant";
+import { getRoomId, playRemoteStream, log, CHUNK_START } from "./utils";
+import { APP_ID, START, ACK } from "./constant";
+import "rrweb/dist/rrweb.min.css";
 import "../css/style.css";
 
 async function main() {
@@ -30,10 +32,42 @@ async function main() {
     await signal.login(`${roomId}-interviewer`);
     // 7. send notification to interviewee and listen to message
     log("send start");
-    await signal.messageInstantSend(`${roomId}-interviewee`, START);
-    signal.on("messageInstantReceive", (messageAccount, uid, message) => {
-      log(message);
+    let replayer;
+    let initialEvents = [];
+    let largeMessage = "";
+    signal.on("messageInstantReceive", async (messageAccount, uid, message) => {
+      await signal.messageInstantSend(`${roomId}-interviewee`, ACK);
+      const events = [];
+      if (message.startsWith(CHUNK_START)) {
+        largeMessage += message.slice(CHUNK_START.length, message.length);
+      } else {
+        if (largeMessage) {
+          // reset chunks
+          events.push(JSON.parse(largeMessage));
+          largeMessage = "";
+        }
+        events.push(JSON.parse(message));
+      }
+      if (!events.length) {
+        return;
+      }
+      for (const event of events) {
+        log(event.type, event.timestamp);
+        if (initialEvents.length < 2) {
+          initialEvents.push(event);
+          if (initialEvents.length === 2) {
+            replayer = new Replayer(initialEvents, {
+              root: document.querySelector(".editor"),
+              liveMode: true
+            });
+            replayer.play();
+          }
+        } else {
+          replayer.addEvent(event);
+        }
+      }
     });
+    signal.messageInstantSend(`${roomId}-interviewee`, START);
   } catch (error) {
     console.error(error);
   }

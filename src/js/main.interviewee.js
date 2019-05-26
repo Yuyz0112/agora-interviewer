@@ -1,6 +1,14 @@
 import { rtc, Signal } from "./sdk";
-import { getRoomId, playRemoteStream, log } from "./utils";
-import { APP_ID, START } from "./constant";
+import {
+  getRoomId,
+  playRemoteStream,
+  log,
+  eventQueue,
+  CHUNK_START,
+  CHUNK_SIZE,
+  CHUNK_REG
+} from "./utils";
+import { APP_ID, START, ACK } from "./constant";
 import "../css/style.css";
 
 async function main() {
@@ -30,17 +38,61 @@ async function main() {
     const signal = new Signal(APP_ID);
     await signal.login(account);
     // 7. listen to message
-    signal.on("messageInstantReceive", (messageAccount, uid, message) => {
-      if (messageAccount === interviewerAccount && message === START) {
-        log("start");
-        setInterval(() => {
-          signal.messageInstantSend(interviewerAccount, "ping");
-        }, 1000);
+    let onFlight = false;
+    signal.on("messageInstantReceive", async (messageAccount, uid, message) => {
+      if (messageAccount !== interviewerAccount) {
+        return;
+      }
+      if (message === START) {
+        onFlight = true;
+        console.log("send first");
+        await signal.messageInstantSend(
+          interviewerAccount,
+          eventQueue.dequeue()
+        );
+        eventQueue.on("enqueue", async () => {
+          if (!onFlight) {
+            console.log("resend first");
+            await signal.messageInstantSend(
+              interviewerAccount,
+              eventQueue.dequeue()
+            );
+          }
+        });
+      }
+      if (message === ACK) {
+        if (eventQueue.length > 0) {
+          console.log("send with ack");
+          await signal.messageInstantSend(
+            interviewerAccount,
+            eventQueue.dequeue()
+          );
+        } else {
+          console.log("finish all");
+          onFlight = false;
+        }
       }
     });
   } catch (error) {
     console.error(error);
   }
 }
+
+log("start record");
+window._e = [];
+window.addEventListener("message", e => {
+  if (!e.data.event) {
+    return;
+  }
+  const eventStr = JSON.stringify(e.data.event);
+  window._e.push(e.data.event);
+  if (eventStr.length < CHUNK_SIZE) {
+    eventQueue.enqueue(eventStr);
+  } else {
+    for (const chunk of eventStr.match(CHUNK_REG)) {
+      eventQueue.enqueue(CHUNK_START + chunk);
+    }
+  }
+});
 
 main();
