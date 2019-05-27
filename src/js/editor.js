@@ -20,7 +20,9 @@ self.MonacoEnvironment = {
 };
 
 monaco.editor.create(document.body, {
-  value: ["function x() {", '\tconsole.log("Hello world!");', "}"].join("\n"),
+  value: `function fibonacci(n) {
+}
+  `,
   language: "javascript"
 });
 
