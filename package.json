@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "http-server": "^0.11.1",
-    "parcel": "^1.12.3"
+    "parcel": "^2.8.2"
   },
   "browserslist": [
     "last 2 Chrome versions"
